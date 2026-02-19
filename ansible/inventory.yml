@@ -1,0 +1,5 @@
+# Example inventory – run against localhost or your audit runner host
+all:
+  hosts:
+    localhost:
+      ansible_connection: local

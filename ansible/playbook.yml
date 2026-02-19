@@ -1,0 +1,33 @@
+# Cloud Sentinel – Ansible playbook (deploy deps + optional audit run)
+# Usage: ansible-playbook -i inventory.yml playbook.yml
+# Ensures Python + deps and optionally runs Sentinel on target host(s).
+---
+- name: Cloud Sentinel – deploy and run audit
+  hosts: localhost
+  gather_facts: true
+  vars:
+    sentinel_repo_path: "{{ playbook_dir }}/../infra"
+    python_version: "3"
+  tasks:
+    - name: Ensure Python and pip
+      ansible.builtin.package:
+        name: ["python{{ python_version }}", "python{{ python_version }}-pip"]
+        state: present
+
+    - name: Install Python dependencies
+      ansible.builtin.pip:
+        requirements: "{{ playbook_dir }}/../requirements.txt"
+        state: present
+      become: false
+
+    - name: Run Sentinel audit (optional; use -e run_audit=true to run)
+      ansible.builtin.command:
+        cmd: "python sentinel.py"
+        chdir: "{{ sentinel_repo_path }}"
+      environment:
+        LOCALSTACK_ENDPOINT: "{{ lookup('env', 'LOCALSTACK_ENDPOINT') | default('http://localhost:4566') }}"
+        AWS_ACCESS_KEY_ID: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') | default('test') }}"
+        AWS_SECRET_ACCESS_KEY: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') | default('test') }}"
+      register: sentinel_run
+      changed_when: false
+      when: run_audit | default(false) | bool

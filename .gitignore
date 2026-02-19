@@ -4,3 +4,11 @@
 .terraform.lock.hcl
 __pycache__/
 audit_report.json
+.env
+*.pyc
+.venv/
+venv/
+# LocalStack cache and certs (do not push)
+infra/localstack_data/
+# Private interview prep (do not push)
+INTERVIEW_PREP.md
