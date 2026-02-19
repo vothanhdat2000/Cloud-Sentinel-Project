@@ -61,6 +61,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
       - name: Start LocalStack
         run: |
           cd infra && docker compose up -d
